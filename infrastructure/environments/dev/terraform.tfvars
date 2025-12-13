@@ -1,0 +1,7 @@
+environment          = "dev"
+project_name         = "inquiry-system"
+owner                = "naoya"
+dynamodb_table_name  = "inquiry-table-dev"
+lambda_function_name = "upload-inquiry-dev"
+lambda_source_path   = "../../../src/functions/upload-inquiry"
+api_name             = "inquiry-api-dev"
