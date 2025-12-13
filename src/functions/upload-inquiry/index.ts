@@ -9,17 +9,16 @@ const docClient = DynamoDBDocumentClient.from(client);
 const TABLE_NAME = process.env.DYNAMODB_TABLE || '';
 
 interface InquiryRequest {
-  name: string;
-  email: string;
-  message: string;
+  reviewText: string;
+  userName: string;
+  mailAddress: string;
 }
 
 interface InquiryItem {
   id: string;
-  name: string;
-  email: string;
-  message: string;
-  createdAt: string;
+  reviewText: string;
+  userName: string;
+  mailAddress: string;
 }
 
 export const handler = async (
@@ -36,22 +35,21 @@ export const handler = async (
 
     const body: InquiryRequest = JSON.parse(event.body);
 
-    if (!body.name || !body.email || !body.message) {
+    if (!body.reviewText || !body.userName || !body.mailAddress) {
       return {
         statusCode: 400,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          error: 'name, email, and message are required fields',
+          error: 'reviewText, userName, and mailAddress are required fields',
         }),
       };
     }
 
     const item: InquiryItem = {
       id: randomUUID(),
-      name: body.name,
-      email: body.email,
-      message: body.message,
-      createdAt: new Date().toISOString(),
+      reviewText: body.reviewText,
+      userName: body.userName,
+      mailAddress: body.mailAddress,
     };
 
     await docClient.send(
@@ -62,7 +60,7 @@ export const handler = async (
     );
 
     return {
-      statusCode: 201,
+      statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         message: 'Inquiry submitted successfully',

@@ -60,13 +60,20 @@ terraform apply
 **リクエスト:**
 ```json
 {
-  "name": "山田太郎",
-  "email": "yamada@example.com",
-  "message": "問い合わせ内容"
+  "reviewText": "問い合わせの内容",
+  "userName": "投稿者名",
+  "mailAddress": "mail@example.com"
 }
 ```
 
 **レスポンス:**
+
+| StatusCode | 説明 |
+|------------|------|
+| 200 | 正常 |
+| 400 | パラメータエラー |
+| 500 | 内部エラー |
+
 ```json
 {
   "message": "Inquiry submitted successfully",
