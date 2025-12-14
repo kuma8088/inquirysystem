@@ -5,7 +5,7 @@
 ## アーキテクチャ
 
 ```
-User → API Gateway → Lambda (UploadInquiry) → DynamoDB (InquiryTable)
+User → API Gateway → Lambda (upload-inquiry-dev) → DynamoDB (inquiry-table-dev)
 ```
 
 ## ディレクトリ構成
@@ -21,26 +21,18 @@ inquirysystem/
 │       └── dynamodb/       # DynamoDB モジュール
 ├── src/
 │   └── functions/
-│       └── upload-inquiry/ # Lambda関数
-└── .github/
-    └── workflows/          # CI/CD
+│       └── upload-inquiry/ # Lambda関数 (Python)
+└── docs/
+    └── issues/             # トラブルシューティング記録
 ```
 
 ## セットアップ
 
 ### 前提条件
 
-- Node.js 20.x
+- Python 3.12
 - Terraform 1.6+
 - AWS CLI (設定済み)
-
-### Lambda関数のビルド
-
-```bash
-cd src/functions/upload-inquiry
-npm install
-npm run build
-```
 
 ### インフラのデプロイ
 
@@ -56,6 +48,11 @@ terraform apply
 ### POST /inquiry
 
 問い合わせを送信します。
+
+**エンドポイント:**
+```
+https://{api-id}.execute-api.ap-northeast-1.amazonaws.com/inquiry
+```
 
 **リクエスト:**
 ```json
@@ -80,3 +77,10 @@ terraform apply
   "id": "uuid"
 }
 ```
+
+## Terraform State管理
+
+S3バックエンドを使用してstateを管理しています。
+
+- バケット: `inquiry-system-tfstate-552927148143`
+- ロックテーブル: `terraform-lock`

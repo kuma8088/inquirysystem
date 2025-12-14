@@ -49,8 +49,8 @@ data "archive_file" "lambda" {
 resource "aws_lambda_function" "upload_inquiry" {
   function_name    = var.function_name
   role             = aws_iam_role.lambda.arn
-  handler          = "index.handler"
-  runtime          = "nodejs20.x"
+  handler          = "lambda_function.handler"
+  runtime          = "python3.12"
   filename         = data.archive_file.lambda.output_path
   source_code_hash = data.archive_file.lambda.output_base64sha256
   timeout          = 30
