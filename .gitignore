@@ -32,4 +32,5 @@ Thumbs.db
 npm-debug.log*
 
 .claude/
-requirement.md
+requirement*.md
+CLAUDE.md

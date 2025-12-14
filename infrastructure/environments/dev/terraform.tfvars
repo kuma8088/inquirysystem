@@ -5,3 +5,12 @@ dynamodb_table_name  = "inquiry-table-dev"
 lambda_function_name = "upload-inquiry-dev"
 lambda_source_path   = "../../../src/functions/upload-inquiry"
 api_name             = "inquiry-api-dev"
+
+# Bedrock RAG
+rag_bucket_name              = "inquiry-rag-data"
+rag_data_path                = "../../../src/rag-data/hotel_info.json"
+create_answer_function_name  = "create-answer-dev"
+create_answer_source_path    = "../../../src/functions/create-answer"
+judge_category_function_name = "judge-category-dev"
+judge_category_source_path   = "../../../src/functions/judge-category"
+bedrock_model_id             = "apac.amazon.nova-micro-v1:0"

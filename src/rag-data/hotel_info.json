@@ -1,0 +1,57 @@
+{
+  "hotel_name": "サンプルホテル東京",
+  "address": {
+    "postal_code": "100-0001",
+    "prefecture": "東京都",
+    "city": "千代田区",
+    "street": "丸の内1-1-1",
+    "full": "〒100-0001 東京都千代田区丸の内1-1-1"
+  },
+  "phone_number": "03-1234-5678",
+  "email": "info@sample-hotel-tokyo.example.com",
+  "business_hours": {
+    "front_desk": "24時間対応",
+    "restaurant": {
+      "breakfast": "7:00〜10:00",
+      "lunch": "11:30〜14:00",
+      "dinner": "17:30〜22:00"
+    }
+  },
+  "check_in": {
+    "standard": "15:00",
+    "latest": "24:00",
+    "early_check_in": "空室状況により可能（追加料金が発生する場合あり）"
+  },
+  "check_out": {
+    "standard": "11:00",
+    "late_check_out": "12:00まで無料延長可能、以降は1時間1,000円"
+  },
+  "parking": {
+    "available": true,
+    "type": "地下駐車場",
+    "capacity": 50,
+    "price": "1泊2,000円",
+    "reservation": "予約不可・先着順"
+  },
+  "wifi": {
+    "available": true,
+    "free": true,
+    "coverage": "全館"
+  },
+  "amenities": [
+    "タオル",
+    "バスタオル",
+    "シャンプー・コンディショナー",
+    "ボディソープ",
+    "歯ブラシ",
+    "ドライヤー",
+    "スリッパ",
+    "パジャマ"
+  ],
+  "services": [
+    "荷物預かり（無料）",
+    "宅配便受付",
+    "クリーニング（有料）",
+    "ルームサービス（7:00〜22:00）"
+  ]
+}
