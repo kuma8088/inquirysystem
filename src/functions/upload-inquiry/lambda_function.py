@@ -1,11 +1,17 @@
 import json
 import os
 import uuid
+from datetime import datetime, timezone, timedelta
 import boto3
 from botocore.exceptions import ClientError
 
 dynamodb = boto3.resource('dynamodb')
+sqs = boto3.client('sqs')
+
 TABLE_NAME = os.environ.get('DYNAMODB_TABLE', '')
+SQS_QUEUE_URL = os.environ.get('SQS_QUEUE_URL', '')
+
+JST = timezone(timedelta(hours=9))
 
 
 def handler(event, context):
@@ -33,15 +39,25 @@ def handler(event, context):
             }
 
         item_id = str(uuid.uuid4())
+        created_date = datetime.now(JST).strftime('%Y-%m-%d')
+
         item = {
             'id': item_id,
             'reviewText': review_text,
             'userName': user_name,
-            'mailAddress': mail_address
+            'mailAddress': mail_address,
+            'createdDate': created_date
         }
 
         table = dynamodb.Table(TABLE_NAME)
         table.put_item(Item=item)
+
+        # SQS にメッセージを送信
+        if SQS_QUEUE_URL:
+            sqs.send_message(
+                QueueUrl=SQS_QUEUE_URL,
+                MessageBody=json.dumps({'id': item_id})
+            )
 
         return {
             'statusCode': 200,

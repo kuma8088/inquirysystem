@@ -1,6 +1,6 @@
 environment          = "dev"
 project_name         = "inquiry-system"
-owner                = "naoya"
+owner                = "your-name"
 dynamodb_table_name  = "inquiry-table-dev"
 lambda_function_name = "upload-inquiry-dev"
 lambda_source_path   = "../../../src/functions/upload-inquiry"
@@ -18,8 +18,8 @@ bedrock_model_id             = "apac.amazon.nova-micro-v1:0"
 # SQS
 sqs_queue_name = "inquiry-queue-dev"
 
-# SES (このファイルは.gitignoreに追加済み)
-ses_email = "naoya.iimura@gmail.com"
+# SES
+ses_email = "your-verified-email@example.com"  # SES検証済みメールアドレスを設定
 
 # Step Functions
 state_machine_name = "inquiry-workflow-dev"

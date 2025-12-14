@@ -34,7 +34,15 @@ module "dynamodb" {
   environment = var.environment
 }
 
-# Lambda Function
+# SQS Queue
+module "sqs" {
+  source = "../../modules/sqs"
+
+  queue_name  = var.sqs_queue_name
+  environment = var.environment
+}
+
+# Lambda Function (upload-inquiry)
 module "lambda" {
   source = "../../modules/lambda"
 
@@ -43,6 +51,8 @@ module "lambda" {
   dynamodb_table   = module.dynamodb.table_name
   dynamodb_arn     = module.dynamodb.table_arn
   source_code_path = var.lambda_source_path
+  sqs_queue_arn    = module.sqs.queue_arn
+  sqs_queue_url    = module.sqs.queue_url
 }
 
 # API Gateway
@@ -104,4 +114,66 @@ module "lambda_judge_category" {
     DYNAMODB_TABLE = module.dynamodb.table_name
     MODEL_ID       = var.bedrock_model_id
   }
+}
+
+# SES Email Identity
+module "ses" {
+  source = "../../modules/ses"
+
+  email_address = var.ses_email
+}
+
+# S3 Aggregation Bucket
+module "s3_aggregation" {
+  source = "../../modules/s3-aggregation"
+
+  bucket_name = var.aggregation_bucket_name
+  environment = var.environment
+}
+
+# SendEmail Lambda
+module "lambda_send_email" {
+  source = "../../modules/lambda-ses"
+
+  function_name    = var.send_email_function_name
+  environment      = var.environment
+  dynamodb_table   = module.dynamodb.table_name
+  dynamodb_arn     = module.dynamodb.table_arn
+  sender_email     = var.ses_email
+  source_code_path = var.send_email_source_path
+}
+
+# Step Functions State Machine
+module "step_functions" {
+  source = "../../modules/step-functions"
+
+  state_machine_name = var.state_machine_name
+  environment        = var.environment
+  judge_category_arn = module.lambda_judge_category.function_arn
+  create_answer_arn  = module.lambda_create_answer.function_arn
+  send_email_arn     = module.lambda_send_email.function_arn
+}
+
+# ExecuteJob Lambda (SQS -> Step Functions)
+module "lambda_execute_job" {
+  source = "../../modules/lambda-sqs-sfn"
+
+  function_name     = var.execute_job_function_name
+  environment       = var.environment
+  sqs_queue_arn     = module.sqs.queue_arn
+  state_machine_arn = module.step_functions.state_machine_arn
+  source_code_path  = var.execute_job_source_path
+}
+
+# DailyAggregation Lambda (EventBridge -> Lambda -> S3)
+module "lambda_daily_aggregation" {
+  source = "../../modules/eventbridge-lambda"
+
+  function_name    = var.daily_aggregation_function_name
+  environment      = var.environment
+  dynamodb_table   = module.dynamodb.table_name
+  dynamodb_arn     = module.dynamodb.table_arn
+  s3_bucket_name   = module.s3_aggregation.bucket_name
+  s3_bucket_arn    = module.s3_aggregation.bucket_arn
+  source_code_path = var.daily_aggregation_source_path
 }

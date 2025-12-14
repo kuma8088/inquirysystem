@@ -23,14 +23,7 @@ variable "source_code_path" {
   type        = string
 }
 
-variable "sqs_queue_arn" {
-  description = "ARN of the SQS queue (optional)"
+variable "sender_email" {
+  description = "Sender email address for SES"
   type        = string
-  default     = ""
-}
-
-variable "sqs_queue_url" {
-  description = "URL of the SQS queue (optional)"
-  type        = string
-  default     = ""
 }

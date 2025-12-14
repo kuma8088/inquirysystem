@@ -8,6 +8,17 @@ resource "aws_dynamodb_table" "inquiry" {
     type = "S"
   }
 
+  attribute {
+    name = "createdDate"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "createdDate-index"
+    hash_key        = "createdDate"
+    projection_type = "ALL"
+  }
+
   point_in_time_recovery {
     enabled = true
   }

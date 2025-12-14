@@ -15,6 +15,7 @@ resource "aws_iam_role" "lambda" {
 }
 
 data "aws_iam_policy_document" "lambda_policy" {
+  # CloudWatch Logs
   statement {
     effect = "Allow"
     actions = [
@@ -25,24 +26,22 @@ data "aws_iam_policy_document" "lambda_policy" {
     resources = ["arn:aws:logs:*:*:*"]
   }
 
+  # DynamoDB - GetItem
   statement {
     effect = "Allow"
     actions = [
-      "dynamodb:PutItem"
+      "dynamodb:GetItem"
     ]
     resources = [var.dynamodb_arn]
   }
 
-  # SQS SendMessage (optional)
-  dynamic "statement" {
-    for_each = var.sqs_queue_arn != "" ? [1] : []
-    content {
-      effect = "Allow"
-      actions = [
-        "sqs:SendMessage"
-      ]
-      resources = [var.sqs_queue_arn]
-    }
+  # SES - SendEmail
+  statement {
+    effect = "Allow"
+    actions = [
+      "ses:SendEmail"
+    ]
+    resources = ["*"]
   }
 }
 
@@ -55,10 +54,10 @@ resource "aws_iam_role_policy" "lambda" {
 data "archive_file" "lambda" {
   type        = "zip"
   source_dir  = var.source_code_path
-  output_path = "${path.module}/lambda.zip"
+  output_path = "${path.module}/${var.function_name}.zip"
 }
 
-resource "aws_lambda_function" "upload_inquiry" {
+resource "aws_lambda_function" "send_email" {
   function_name    = var.function_name
   role             = aws_iam_role.lambda.arn
   handler          = "lambda_function.handler"
@@ -69,14 +68,10 @@ resource "aws_lambda_function" "upload_inquiry" {
   memory_size      = 128
 
   environment {
-    variables = merge(
-      {
-        DYNAMODB_TABLE = var.dynamodb_table
-      },
-      var.sqs_queue_url != "" ? {
-        SQS_QUEUE_URL = var.sqs_queue_url
-      } : {}
-    )
+    variables = {
+      DYNAMODB_TABLE = var.dynamodb_table
+      SENDER_EMAIL   = var.sender_email
+    }
   }
 
   tags = {

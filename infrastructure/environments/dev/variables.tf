@@ -74,3 +74,60 @@ variable "bedrock_model_id" {
   type        = string
   default     = "amazon.nova-micro-v1:0"
 }
+
+# SQS
+variable "sqs_queue_name" {
+  description = "Name of the SQS queue"
+  type        = string
+}
+
+# SES
+variable "ses_email" {
+  description = "SES email address"
+  type        = string
+}
+
+# Step Functions
+variable "state_machine_name" {
+  description = "Name of the Step Functions state machine"
+  type        = string
+}
+
+# ExecuteJob Lambda
+variable "execute_job_function_name" {
+  description = "Name of the ExecuteJob Lambda function"
+  type        = string
+}
+
+variable "execute_job_source_path" {
+  description = "Path to ExecuteJob Lambda source code"
+  type        = string
+}
+
+# SendEmail Lambda
+variable "send_email_function_name" {
+  description = "Name of the SendEmail Lambda function"
+  type        = string
+}
+
+variable "send_email_source_path" {
+  description = "Path to SendEmail Lambda source code"
+  type        = string
+}
+
+# S3 Aggregation
+variable "aggregation_bucket_name" {
+  description = "Name of the S3 bucket for aggregation results"
+  type        = string
+}
+
+# DailyAggregation Lambda
+variable "daily_aggregation_function_name" {
+  description = "Name of the DailyAggregation Lambda function"
+  type        = string
+}
+
+variable "daily_aggregation_source_path" {
+  description = "Path to DailyAggregation Lambda source code"
+  type        = string
+}

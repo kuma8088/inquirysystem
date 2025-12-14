@@ -27,3 +27,33 @@ output "judge_category_function_name" {
   description = "JudgeCategory Lambda function name"
   value       = module.lambda_judge_category.function_name
 }
+
+output "sqs_queue_url" {
+  description = "SQS queue URL"
+  value       = module.sqs.queue_url
+}
+
+output "state_machine_arn" {
+  description = "Step Functions state machine ARN"
+  value       = module.step_functions.state_machine_arn
+}
+
+output "execute_job_function_name" {
+  description = "ExecuteJob Lambda function name"
+  value       = module.lambda_execute_job.function_name
+}
+
+output "send_email_function_name" {
+  description = "SendEmail Lambda function name"
+  value       = module.lambda_send_email.function_name
+}
+
+output "aggregation_bucket_name" {
+  description = "S3 bucket name for aggregation results"
+  value       = module.s3_aggregation.bucket_name
+}
+
+output "daily_aggregation_function_name" {
+  description = "DailyAggregation Lambda function name"
+  value       = module.lambda_daily_aggregation.function_name
+}
