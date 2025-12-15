@@ -177,3 +177,36 @@ module "lambda_daily_aggregation" {
   s3_bucket_arn    = module.s3_aggregation.bucket_arn
   source_code_path = var.daily_aggregation_source_path
 }
+
+# S3 Analytics Bucket (for Glue output and Athena)
+module "s3_analytics" {
+  source = "../../modules/s3-analytics"
+
+  bucket_name         = var.analytics_bucket_name
+  environment         = var.environment
+  data_retention_days = var.analytics_data_retention_days
+}
+
+# Glue ETL Job (DynamoDB to S3)
+module "glue_etl" {
+  source = "../../modules/glue-etl"
+
+  job_name            = var.glue_job_name
+  environment         = var.environment
+  dynamodb_table_name = module.dynamodb.table_name
+  dynamodb_arn        = module.dynamodb.table_arn
+  s3_bucket_name      = module.s3_analytics.bucket_name
+  s3_bucket_arn       = module.s3_analytics.bucket_arn
+  glue_script_path    = var.glue_script_path
+}
+
+# Athena Workgroup
+module "athena" {
+  source = "../../modules/athena"
+
+  workgroup_name     = var.athena_workgroup_name
+  environment        = var.environment
+  s3_bucket_name     = module.s3_analytics.bucket_name
+  glue_database_name = module.glue_etl.database_name
+  glue_table_name    = module.glue_etl.table_name
+}

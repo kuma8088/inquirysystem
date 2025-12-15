@@ -38,3 +38,9 @@ aggregation_bucket_name = "inquiry-aggregation"
 # DailyAggregation Lambda
 daily_aggregation_function_name = "daily-aggregation-dev"
 daily_aggregation_source_path   = "../../../src/functions/daily-aggregation"
+
+# Analytics (Glue + Athena)
+analytics_bucket_name = "inquiry-analytics"
+glue_job_name         = "dynamodb-to-s3-etl"
+glue_script_path      = "../../../src/glue/dynamodb_to_s3.py"
+athena_workgroup_name = "inquiry-analytics"

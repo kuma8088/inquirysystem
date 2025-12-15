@@ -131,3 +131,32 @@ variable "daily_aggregation_source_path" {
   description = "Path to DailyAggregation Lambda source code"
   type        = string
 }
+
+# S3 Analytics
+variable "analytics_bucket_name" {
+  description = "Name of the S3 bucket for analytics data"
+  type        = string
+}
+
+variable "analytics_data_retention_days" {
+  description = "Number of days to retain analytics data"
+  type        = number
+  default     = 30
+}
+
+# Glue ETL
+variable "glue_job_name" {
+  description = "Name of the Glue ETL job"
+  type        = string
+}
+
+variable "glue_script_path" {
+  description = "Path to the Glue script file"
+  type        = string
+}
+
+# Athena
+variable "athena_workgroup_name" {
+  description = "Name of the Athena workgroup"
+  type        = string
+}

@@ -57,3 +57,23 @@ output "daily_aggregation_function_name" {
   description = "DailyAggregation Lambda function name"
   value       = module.lambda_daily_aggregation.function_name
 }
+
+output "analytics_bucket_name" {
+  description = "S3 bucket name for analytics data"
+  value       = module.s3_analytics.bucket_name
+}
+
+output "glue_job_name" {
+  description = "Glue ETL job name"
+  value       = module.glue_etl.job_name
+}
+
+output "glue_database_name" {
+  description = "Glue catalog database name"
+  value       = module.glue_etl.database_name
+}
+
+output "athena_workgroup_name" {
+  description = "Athena workgroup name"
+  value       = module.athena.workgroup_name
+}
