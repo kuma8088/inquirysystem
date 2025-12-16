@@ -5,7 +5,12 @@ Amazon Bedrockを活用した自動分類・回答生成機能を搭載し、非
 
 ## アーキテクチャ
 
+### システム全体図
+
 ```
+[フロントエンド]
+React SPA (S3 Static Website) → CloudFront (オプション)
+
 [問い合わせ登録 + 非同期処理]
 User → API Gateway → upload-inquiry Lambda → DynamoDB
                             ↓
@@ -52,41 +57,61 @@ DynamoDB → Glue Job (PySpark) → S3 (Parquet) → Athena
 
 ```
 inquirysystem/
-├── infrastructure/              # Terraform
+├── frontend/                   # フロントエンド (React + Vite)
+│   ├── src/
+│   │   ├── api/               # API クライアント
+│   │   ├── components/        # React コンポーネント
+│   │   │   ├── common/       # 共通コンポーネント (Button, Input, etc)
+│   │   │   ├── inquiry/      # 問い合わせ関連 (Form, List, Detail)
+│   │   │   └── layout/       # レイアウト
+│   │   ├── hooks/            # カスタムフック
+│   │   ├── pages/            # ページコンポーネント
+│   │   ├── providers/        # Context Provider
+│   │   ├── types/            # TypeScript型定義
+│   │   └── utils/            # ユーティリティ関数
+│   ├── e2e/                  # E2Eテスト (Playwright)
+│   ├── .env.development      # 開発環境変数
+│   ├── .env.example          # 環境変数テンプレート
+│   ├── playwright.config.ts  # Playwright設定
+│   ├── vite.config.ts        # Vite設定
+│   └── package.json
+├── infrastructure/             # Terraform
 │   ├── environments/
-│   │   └── dev/                # 開発環境
+│   │   └── dev/              # 開発環境
 │   └── modules/
-│       ├── api-gateway/        # API Gateway
-│       ├── lambda/             # upload-inquiry Lambda
-│       ├── dynamodb/           # DynamoDB (GSI含む)
-│       ├── s3-rag/             # S3 RAGデータ
-│       ├── s3-aggregation/     # S3 集計結果
-│       ├── s3-analytics/       # S3 分析データ (Glue出力)
-│       ├── sqs/                # SQS キュー
-│       ├── ses/                # SES メール
-│       ├── step-functions/     # Step Functions
-│       ├── lambda-bedrock/     # Bedrock Lambda
-│       ├── lambda-ses/         # send-email Lambda
-│       ├── lambda-sqs-sfn/     # execute-job Lambda
+│       ├── api-gateway/      # API Gateway
+│       ├── lambda/           # upload-inquiry Lambda
+│       ├── dynamodb/         # DynamoDB (GSI含む)
+│       ├── s3-rag/           # S3 RAGデータ
+│       ├── s3-aggregation/   # S3 集計結果
+│       ├── s3-analytics/     # S3 分析データ (Glue出力)
+│       ├── s3-frontend/      # S3 静的ウェブサイトホスティング
+│       ├── sqs/              # SQS キュー
+│       ├── ses/              # SES メール
+│       ├── step-functions/   # Step Functions
+│       ├── lambda-bedrock/   # Bedrock Lambda
+│       ├── lambda-ses/       # send-email Lambda
+│       ├── lambda-sqs-sfn/   # execute-job Lambda
 │       ├── eventbridge-lambda/ # daily-aggregation Lambda
-│       ├── glue-etl/           # Glue Job (DynamoDB → S3)
-│       └── athena/             # Athena Workgroup
+│       ├── glue-etl/         # Glue Job (DynamoDB → S3)
+│       └── athena/           # Athena Workgroup
 ├── src/
 │   ├── functions/
-│   │   ├── upload-inquiry/     # 問い合わせ登録 + SQS送信
-│   │   ├── judge-category/     # AI分類
-│   │   ├── create-answer/      # AI回答生成
-│   │   ├── execute-job/        # SQS → Step Functions起動
-│   │   ├── send-email/         # SES メール送信
-│   │   └── daily-aggregation/  # 日次集計
+│   │   ├── upload-inquiry/   # 問い合わせ登録 + SQS送信
+│   │   ├── judge-category/   # AI分類
+│   │   ├── create-answer/    # AI回答生成
+│   │   ├── execute-job/      # SQS → Step Functions起動
+│   │   ├── send-email/       # SES メール送信
+│   │   └── daily-aggregation/ # 日次集計
 │   ├── glue/
-│   │   └── dynamodb_to_s3.py   # Glue ETLスクリプト
+│   │   └── dynamodb_to_s3.py # Glue ETLスクリプト
 │   └── rag-data/
-│       └── hotel_info.json     # RAGデータ（ホテル情報）
+│       └── hotel_info.json   # RAGデータ（ホテル情報）
 └── docs/
-    ├── issues/                 # トラブルシューティング記録
-    ├── requirement03.md        # 非同期処理・集計・メール要件
-    └── requirement04.md        # 分析環境要件
+    ├── blog-articles/         # 技術記事・詰まりログ
+    ├── issues/               # トラブルシューティング記録
+    ├── requirement03.md      # 非同期処理・集計・メール要件
+    └── requirement04.md      # 分析環境要件
 ```
 
 ## セットアップ
@@ -96,8 +121,10 @@ inquirysystem/
 - Python 3.12
 - Terraform 1.6+
 - AWS CLI (設定済み)
+- Node.js 20+ (フロントエンド開発用)
+- npm または yarn
 
-### インフラのデプロイ
+### バックエンドのデプロイ
 
 ```bash
 cd infrastructure/environments/dev
@@ -105,6 +132,90 @@ terraform init
 terraform plan
 terraform apply
 ```
+
+### フロントエンドのセットアップ
+
+#### 1. 依存関係のインストール
+
+```bash
+cd frontend
+npm install
+```
+
+#### 2. 環境変数の設定
+
+`.env.development` ファイルを作成し、APIエンドポイントを設定します。
+
+```bash
+# .env.development
+VITE_API_ENDPOINT=https://{api-id}.execute-api.ap-northeast-1.amazonaws.com
+```
+
+**参考:** `.env.example` にテンプレートがあります。
+
+#### 3. 開発サーバーの起動
+
+```bash
+npm run dev
+```
+
+ブラウザで `http://localhost:5173` を開きます。
+
+#### 4. ビルド（本番用）
+
+```bash
+# 環境変数を指定してビルド
+VITE_API_ENDPOINT=https://{api-id}.execute-api.ap-northeast-1.amazonaws.com npm run build
+
+# または .env.production を作成してからビルド
+npm run build
+```
+
+ビルド結果は `dist/` ディレクトリに出力されます。
+
+#### 5. S3へのデプロイ
+
+```bash
+aws s3 sync dist/ s3://inquiry-frontend-dev --delete
+```
+
+**アクセスURL:**
+```
+http://inquiry-frontend-dev.s3-website-ap-northeast-1.amazonaws.com
+```
+
+### フロントエンドのテスト
+
+#### 単体テスト（Vitest）
+
+```bash
+# テスト実行（ウォッチモード）
+npm run test
+
+# テスト実行（1回のみ）
+npm run test:run
+
+# カバレッジ付き
+npm run test:coverage
+```
+
+#### E2Eテスト（Playwright）
+
+```bash
+# 開発サーバーでE2Eテスト
+npm run test:e2e
+
+# UIモード（デバッグ用）
+npm run test:e2e:ui
+
+# ヘッドモード（ブラウザを表示）
+npm run test:e2e:headed
+
+# 本番環境でE2Eテスト（S3デプロイ後）
+npm run test:e2e:prod
+```
+
+**重要:** 本番環境のE2Eテストは、S3へのデプロイ後に実行してください。
 
 ## API
 
@@ -256,6 +367,24 @@ aws athena start-query-execution \
 
 ## 技術スタック
 
+### フロントエンド
+
+| カテゴリ | 技術 | バージョン |
+|----------|------|-----------|
+| フレームワーク | React | 19.2 |
+| ビルドツール | Vite | 7.2 |
+| 言語 | TypeScript | 5.9 |
+| スタイリング | Tailwind CSS | 4.1 |
+| 状態管理 | React Query | 5.90 |
+| フォーム管理 | React Hook Form | 7.68 |
+| バリデーション | Zod | 4.2 |
+| ルーティング | React Router | 7.10 |
+| 単体テスト | Vitest | 4.0 |
+| E2Eテスト | Playwright | 1.57 |
+| ホスティング | AWS S3 静的ウェブサイト | - |
+
+### バックエンド
+
 | カテゴリ | 技術 |
 |----------|------|
 | IaC | Terraform |
@@ -271,12 +400,71 @@ aws athena start-query-execution \
 | ETL | AWS Glue (PySpark) |
 | Analytics | Amazon Athena |
 
+### アーキテクチャパターン
+
+- **フロントエンド:** SPA (Single Page Application)
+- **バックエンド:** サーバーレス + 非同期処理
+- **データフロー:** Event-Driven Architecture (EDA)
+
 ## Terraform State管理
 
 S3バックエンドを使用してstateを管理しています。
 
 - バケット: `inquiry-system-tfstate-552927148143`
 - ロックテーブル: `terraform-lock`
+
+## トラブルシューティング
+
+### フロントエンド関連
+
+#### 問題: 本番環境でフォーム送信すると「Unknown error」が発生
+
+**症状:**
+- E2Eテストは成功するが、S3にデプロイした本番環境ではエラーが発生
+- ブラウザの開発者ツールで `VITE_API_ENDPOINT` が `undefined` になっている
+
+**原因:**
+- `.env.production` が存在しないか、ビルド時に環境変数が指定されていない
+- Viteは `npm run build` 実行時に `.env.production` を読み込む
+
+**解決策:**
+
+```bash
+# 方法1: ビルド時に環境変数を指定
+VITE_API_ENDPOINT=https://{api-id}.execute-api.ap-northeast-1.amazonaws.com npm run build
+
+# 方法2: .env.production を作成
+echo "VITE_API_ENDPOINT=https://{api-id}.execute-api.ap-northeast-1.amazonaws.com" > .env.production
+npm run build
+```
+
+**詳細:** [詰まりログ: E2Eテストは成功するのに本番環境でエラーが発生する問題](/docs/blog-articles/001_e2e-tests-pass-but-production-fails.md)
+
+#### 問題: E2Eテストで本番ビルドがテストされていない
+
+**症状:**
+- `npm run test:e2e:prod` を実行しても、常に開発サーバーが起動する
+
+**原因:**
+- `playwright.config.ts` の `webServer` 設定が常に有効になっている
+
+**解決策:**
+
+`playwright.config.ts` を以下のように修正（修正済み）:
+
+```typescript
+webServer: process.env.BASE_URL
+  ? undefined  // BASE_URL が設定されている場合は開発サーバーを起動しない
+  : {
+      command: 'npm run dev',
+      port: 5173,
+      reuseExistingServer: !process.env.CI,
+    }
+```
+
+### バックエンド関連
+
+その他のトラブルシューティングは `/docs/issues/` を参照してください。
 
 ## 既知の課題・改善予定
 
@@ -310,188 +498,3 @@ Source='サンプルホテル東京 <sender@example.com>'
 **参考:**
 - [SES ドメイン検証](https://docs.aws.amazon.com/ses/latest/dg/creating-identities.html#verify-domain-procedure)
 - [メール認証設定](https://docs.aws.amazon.com/ses/latest/dg/send-email-authentication.html)
-
-## 補足
-
-### 非同期処理のメリット
-
-本システムでは SQS + Step Functions による非同期処理を採用しています。
-
-#### 1. 障害の分離（Fault Isolation）
-
-```
-[同期処理の場合]
-API → Lambda → Bedrock → SES → レスポンス
-       ↑
-   どこか1つ失敗 → 全体が失敗、ユーザーにエラー
-
-[非同期処理の場合]
-API → Lambda → DynamoDB → SQS → レスポンス（即座に200 OK）
-                           ↓
-                    Step Functions（後で処理）
-```
-
-- ユーザーへの応答が高速化（Bedrock/SES の完了を待たない）
-- Bedrock障害時でもデータは保存済み（後でリトライ可能）
-
-#### 2. 自動リトライ（SQSの特性）
-
-```
-SQS → Lambda失敗 → メッセージがキューに戻る → 再試行
-                   ↓
-              3回失敗 → DLQ（Dead Letter Queue）へ
-```
-
-- 一時的な障害（ネットワーク、Bedrockの過負荷）を自動で乗り越える
-- 失敗したメッセージは消えない（DLQで調査・再処理可能）
-
-#### 3. スケーラビリティ
-
-```
-[同期処理]
-大量リクエスト → Lambda同時実行上限 → スロットリング → エラー
-
-[非同期処理]
-大量リクエスト → SQSに蓄積 → Lambdaが順次処理 → 全て成功
-```
-
-- SQSがバッファとして機能（ピークを吸収）
-- 処理速度を超えるリクエストも取りこぼさない
-
-#### 4. Step Functionsの可視化・制御
-
-- 処理フローが可視化される（デバッグ容易）
-- 各ステップで個別にリトライ設定可能
-- 実行履歴から成功/失敗、各ステップの入出力を確認可能
-
-#### 具体的なシナリオ比較
-
-| シナリオ | 同期だと... | 非同期だと... |
-|---------|------------|--------------|
-| Bedrock応答遅延 | ユーザー30秒待機 | 即座に200 OK、裏で処理 |
-| SES一時障害 | メール送信失敗、データロスト | SQSで保持、復旧後に自動送信 |
-| 大量問い合わせ | Lambda上限でエラー | キューに蓄積、順次処理 |
-
-### サーバーレスの優位性
-
-本システムをオンプレミスやIaaS（EC2等）で構築した場合との比較。
-
-#### 構成比較
-
-```
-[サーバーレス構成（本システム）]
-API Gateway → Lambda → DynamoDB → SQS → Step Functions
-                                         ↓
-                                   Lambda (Bedrock/SES)
-
-[従来構成（オンプレ/IaaS）]
-ロードバランサー → Webサーバー群 → アプリサーバー群 → RDB
-     ↓                                    ↓
-  冗長化構成                         メッセージキュー
-  (2台以上)                          (RabbitMQ等)
-                                          ↓
-                                    ワーカーサーバー群
-```
-
-#### メリット
-
-| 観点 | サーバーレス | オンプレ/IaaS |
-|------|-------------|--------------|
-| **初期コスト** | ほぼゼロ | サーバー購入/構築費用 |
-| **運用コスト** | 従量課金（使った分だけ） | 24時間稼働費用（アイドル時も課金） |
-| **インフラ保守** | AWS管理（パッチ適用不要） | 自前でOS/ミドルウェア更新 |
-| **スケーリング** | 自動（設定不要） | 手動または自動スケール設定が必要 |
-| **可用性** | マネージドで高可用性 | 冗長構成を自前で設計・構築 |
-| **障害対応** | AWS側で自動復旧 | 監視・アラート・復旧手順が必要 |
-| **開発速度** | ビジネスロジックに集中 | インフラ構築に時間を要する |
-
-#### コスト試算例（月間1,000リクエスト想定）
-
-| 項目 | サーバーレス | EC2構成（最小冗長化） |
-|------|-------------|---------------------|
-| コンピュート | Lambda: ~$0.20 | EC2 t3.small x2: ~$30 |
-| データベース | DynamoDB: ~$1 | RDS t3.micro: ~$15 |
-| メッセージング | SQS: ~$0.01 | EC2 + RabbitMQ: ~$15 |
-| ロードバランサー | API Gateway: ~$1 | ALB: ~$20 |
-| **合計** | **~$2/月** | **~$80/月** |
-
-※低トラフィック時はサーバーレスが圧倒的に有利
-
-#### デメリット・考慮点
-
-| 観点 | 課題 | 対策・備考 |
-|------|------|-----------|
-| **コールドスタート** | 初回起動に数百ms〜数秒 | Provisioned Concurrencyで軽減可能 |
-| **実行時間制限** | Lambda最大15分 | 長時間処理はStep Functionsで分割 |
-| **ベンダーロックイン** | AWS依存が高まる | マルチクラウド要件があれば要検討 |
-| **デバッグ難易度** | ローカル再現が困難 | SAM/LocalStack等で軽減 |
-| **ステートレス制約** | Lambda間で状態共有不可 | DynamoDB/S3で状態管理 |
-| **コスト予測** | 従量課金で変動 | 高トラフィック時はEC2が有利な場合も |
-
-#### 本システムに適している理由
-
-1. **トラフィック変動** - 問い合わせは不定期、アイドル時間が長い
-2. **処理単位が明確** - 1リクエスト = 1処理で分離しやすい
-3. **スパイク対応** - キャンペーン等の急増にも自動対応
-4. **小規模スタート** - 初期投資なしで始められる
-5. **運用負荷軽減** - インフラ専任なしでも運用可能
-
-### サーバーレスからIaaSへの移行判断基準
-
-ビジネス成長に伴い、サーバーレスからIaaS（EC2等）への移行を検討するタイミング。
-
-#### コストの損益分岐点
-
-```
-        コスト
-          ↑
-          │      ／ Lambda（従量課金）
-          │    ／
-          │  ／
-          │／───────── EC2（固定費）
-          │
-          └──────────────→ リクエスト数
-               ↑
-            損益分岐点（月100万リクエスト付近）
-```
-
-| 月間リクエスト | Lambda | EC2 (t3.medium) | 判定 |
-|---------------|--------|-----------------|------|
-| ~10万 | ~$5 | ~$30 | Lambda有利 |
-| ~100万 | ~$50 | ~$30 | 同等 |
-| 1,000万~ | ~$500+ | ~$50-100 | EC2有利 |
-
-#### 移行判断の基準
-
-| 基準 | サーバーレス継続 | IaaS移行検討 |
-|------|-----------------|-------------|
-| **月間コスト** | ~$100以下 | $500超が継続 |
-| **トラフィック** | 変動が大きい | 常時高負荷（予測可能） |
-| **レイテンシ要件** | 数百ms許容 | 10ms以下必須 |
-| **実行時間** | 15分以内 | 長時間バッチ処理 |
-
-#### 段階的アプローチ（推奨）
-
-```
-Phase 1: フルサーバーレス（本システム）
-    ↓ 月100万リクエスト超
-Phase 2: ハイブリッド（高頻度処理のみコンテナ化）
-    ↓ さらに拡大
-Phase 3: ECS/EKS（コンテナオーケストレーション）
-```
-
-#### 現実的な視点
-
-- **月100万リクエスト以上** = ビジネスとして十分な収益が見込める段階
-- その時点でインフラ投資・運用体制の強化は現実的な選択肢
-- **逆に言えば、月100万リクエストまではサーバーレスで十分対応可能**
-- 多くのスタートアップ・中小規模サービスはサーバーレスの適用範囲内
-
-#### 結論
-
-「まずサーバーレスで始める」戦略は合理的：
-
-1. **初期投資ゼロ**でビジネス検証が可能
-2. **月100万リクエストまで**はコスト優位性を維持
-3. **移行が必要になる頃**にはビジネス収益でインフラ投資が可能
-4. **全移行ではなくハイブリッド**から段階的に最適化
