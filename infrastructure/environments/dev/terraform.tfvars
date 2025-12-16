@@ -6,6 +6,10 @@ lambda_function_name = "upload-inquiry-dev"
 lambda_source_path   = "../../../src/functions/upload-inquiry"
 api_name             = "inquiry-api-dev"
 
+# GET Inquiry Lambda
+get_inquiry_function_name = "get-inquiry-dev"
+get_inquiry_source_path   = "../../../src/functions/get-inquiry"
+
 # Bedrock RAG
 rag_bucket_name              = "inquiry-rag-data"
 rag_data_path                = "../../../src/rag-data/hotel_info.json"
@@ -44,3 +48,6 @@ analytics_bucket_name = "inquiry-analytics"
 glue_job_name         = "dynamodb-to-s3-etl"
 glue_script_path      = "../../../src/glue/dynamodb_to_s3.py"
 athena_workgroup_name = "inquiry-analytics"
+
+# Frontend
+frontend_bucket_name = "inquiry-frontend"

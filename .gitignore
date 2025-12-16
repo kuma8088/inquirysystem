@@ -36,3 +36,4 @@ npm-debug.log*
 .claude/
 requirement*.md
 CLAUDE.md
+docs/

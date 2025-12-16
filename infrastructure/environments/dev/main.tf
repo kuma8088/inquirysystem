@@ -55,14 +55,28 @@ module "lambda" {
   sqs_queue_url    = module.sqs.queue_url
 }
 
+# Lambda Function (get-inquiry)
+module "lambda_get_inquiry" {
+  source = "../../modules/lambda-get-inquiry"
+
+  function_name    = var.get_inquiry_function_name
+  environment      = var.environment
+  dynamodb_table   = module.dynamodb.table_name
+  dynamodb_arn     = module.dynamodb.table_arn
+  source_code_path = var.get_inquiry_source_path
+}
+
 # API Gateway
 module "api_gateway" {
   source = "../../modules/api-gateway"
 
-  api_name            = var.api_name
-  environment         = var.environment
-  lambda_function_arn = module.lambda.function_arn
-  lambda_invoke_arn   = module.lambda.invoke_arn
+  api_name                = var.api_name
+  environment             = var.environment
+  lambda_function_arn     = module.lambda.function_arn
+  lambda_invoke_arn       = module.lambda.invoke_arn
+  enable_get_lambda       = true
+  lambda_get_function_arn = module.lambda_get_inquiry.function_arn
+  lambda_get_invoke_arn   = module.lambda_get_inquiry.invoke_arn
 }
 
 # S3 RAG Data Bucket
@@ -209,4 +223,12 @@ module "athena" {
   s3_bucket_name     = module.s3_analytics.bucket_name
   glue_database_name = module.glue_etl.database_name
   glue_table_name    = module.glue_etl.table_name
+}
+
+# S3 Frontend (Static Website Hosting)
+module "s3_frontend" {
+  source = "../../modules/s3-frontend"
+
+  bucket_name = var.frontend_bucket_name
+  environment = var.environment
 }

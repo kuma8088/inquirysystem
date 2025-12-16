@@ -34,6 +34,17 @@ variable "lambda_source_path" {
   type        = string
 }
 
+# GET Inquiry Lambda
+variable "get_inquiry_function_name" {
+  description = "Name of the GET Inquiry Lambda function"
+  type        = string
+}
+
+variable "get_inquiry_source_path" {
+  description = "Path to GET Inquiry Lambda source code"
+  type        = string
+}
+
 variable "api_name" {
   description = "Name of the API Gateway"
   type        = string
@@ -158,5 +169,11 @@ variable "glue_script_path" {
 # Athena
 variable "athena_workgroup_name" {
   description = "Name of the Athena workgroup"
+  type        = string
+}
+
+# S3 Frontend
+variable "frontend_bucket_name" {
+  description = "Name of the S3 bucket for frontend hosting"
   type        = string
 }

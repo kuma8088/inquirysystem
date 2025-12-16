@@ -13,9 +13,20 @@ resource "aws_dynamodb_table" "inquiry" {
     type = "S"
   }
 
+  attribute {
+    name = "mailAddress"
+    type = "S"
+  }
+
   global_secondary_index {
     name            = "createdDate-index"
     hash_key        = "createdDate"
+    projection_type = "ALL"
+  }
+
+  global_secondary_index {
+    name            = "mailAddress-index"
+    hash_key        = "mailAddress"
     projection_type = "ALL"
   }
 

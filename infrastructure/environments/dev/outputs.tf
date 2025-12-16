@@ -13,6 +13,11 @@ output "lambda_function_name" {
   value       = module.lambda.function_name
 }
 
+output "get_inquiry_function_name" {
+  description = "GET Inquiry Lambda function name"
+  value       = module.lambda_get_inquiry.function_name
+}
+
 output "rag_bucket_name" {
   description = "S3 bucket name for RAG data"
   value       = module.s3_rag.bucket_name
@@ -76,4 +81,14 @@ output "glue_database_name" {
 output "athena_workgroup_name" {
   description = "Athena workgroup name"
   value       = module.athena.workgroup_name
+}
+
+output "frontend_bucket_name" {
+  description = "S3 bucket name for frontend"
+  value       = module.s3_frontend.bucket_name
+}
+
+output "frontend_website_endpoint" {
+  description = "S3 static website endpoint URL"
+  value       = module.s3_frontend.website_endpoint
 }
