@@ -1,0 +1,26 @@
+{
+  "name": "inquirysystem",
+  "version": "1.0.0",
+  "description": "ホテル予約サイトのお問い合わせを管理するシステムです。 **Amazon Bedrock（生成AI）** を活用して、お問い合わせの自動分類と回答生成を行い、運営業務を効率化します。",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kuma8088/inquirysystem.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kuma8088/inquirysystem/issues"
+  },
+  "homepage": "https://github.com/kuma8088/inquirysystem#readme",
+  "dependencies": {
+    "zenn-cli": "^0.2.11"
+  }
+}
