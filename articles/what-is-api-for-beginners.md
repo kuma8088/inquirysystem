@@ -3,7 +3,7 @@ title: "非エンジニアのための「APIとは何か」入門"
 emoji: "🔌"
 type: "idea"
 topics: ["api", "初心者向け", "プログラミング入門", "webapi"]
-published: false
+published: true
 ---
 
 開発現場で「まずAPIから作る」という話を聞いて、「APIって何？」と思ったことはありませんか。この記事では、プログラミング経験がない方でもAPIの本質を理解できるよう、身近な例を使って解説します。
