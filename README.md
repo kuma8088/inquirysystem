@@ -71,7 +71,7 @@
 
 ## システム構成
 
-![システム構成図](./architecture.svg)
+![システム構成図](./architecture.png)
 
 ### 処理フロー
 
